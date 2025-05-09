@@ -235,7 +235,6 @@ class Play:
         # once interface has been created, invoke new round function for first round
         self.new_round()
 
-
     def new_round(self):
         """
         Starts a new round with a fresh question and answers.
@@ -268,11 +267,13 @@ class Play:
         if selected_answer == self.correct_answer_text:
             result_text = f"Success! '{selected_answer}' is correct"
             result_bg = "#82B366"
+            # change to total_score += 1
             self.all_scores_list.append(1)
             self.rounds_won.set(self.rounds_won.get() + 1)
         else:
             result_text = f"Oops! '{selected_answer}' is wrong"
             result_bg = "#F8CECC"
+            # change to total_score += 1
             self.all_scores_list.append(0)
 
         self.results_label.config(text=result_text, bg=result_bg)
