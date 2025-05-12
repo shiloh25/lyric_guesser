@@ -147,6 +147,11 @@ class Stats:
             contents = file.read()
             line_count = contents.count('\n')
 
+        if line_count > 0:
+            lines_for_average = line_count
+        else:
+            lines_for_average = 1
+
         # extract information from the master list
         rounds_won = all_stats_info[0]
         user_scores = all_stats_info[1]
@@ -176,7 +181,7 @@ class Stats:
             file.write(f"\n{total_score}")
 
         total_for_average = sum(past_scores)
-        average_score = total_for_average / line_count
+        average_score = total_for_average / lines_for_average
 
         # strings for start labels
 

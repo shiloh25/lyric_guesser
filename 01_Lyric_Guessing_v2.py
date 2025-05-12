@@ -141,9 +141,6 @@ class Play:
 
     def __init__(self, how_many):
 
-        # integers / string variables
-        self.target_score = IntVar()
-
         self.rounds_played = IntVar()
         self.rounds_played.set(0)
 
@@ -152,7 +149,7 @@ class Play:
 
         self.rounds_won = IntVar()
 
-        # colour lists and score list
+        # song lists and score list
         self.round_song_list = []
         self.all_scores_list = []
         self.all_high_score_list = []
@@ -184,8 +181,7 @@ class Play:
         # retrieve labels so they can be configured later
         self.heading_label = play_labels_ref[0]
         self.song_title_label = play_labels_ref[1]
-        self.target_label = play_labels_ref[2]
-        self.choose_label = play_labels_ref[3]
+        self.lyric_label = play_labels_ref[2]
         self.results_label = play_labels_ref[3]
 
         # set up lyric buttons...
@@ -198,7 +194,7 @@ class Play:
         # create four buttons in a 2 x 2 grid
         for item in range(0, 4):
             self.lyric_button = Button(self.lyric_frame, font=("Arial", "12"), text="Lyric", fg="#F7EFFD",
-                                        width=15, command=partial(self.round_results, item), bg="#7D28A4")
+                                       width=15, command=partial(self.round_results, item), bg="#7D28A4")
             self.lyric_button.grid(row=item // 2, column=item % 2, pady=5, padx=5)
 
             self.lyric_button_ref.append(self.lyric_button)
@@ -250,7 +246,7 @@ class Play:
         # Update UI text
         self.heading_label.config(text=f"Round {rounds_played} of {rounds_wanted}")
         self.song_title_label.config(text=f"{song}", fg="#F7EFFD")
-        self.target_label.config(text=lyric)
+        self.lyric_label.config(text=lyric)
         self.results_label.config(text="=" * 7, bg="#0C0C0C")
 
         # Assign answers to the buttons
@@ -266,17 +262,17 @@ class Play:
 
         if selected_answer == self.correct_answer_text:
             result_text = f"Success! '{selected_answer}' is correct"
-            result_bg = "#82B366"
+            result_fg = "#82B366"
             # change to total_score += 1
             self.all_scores_list.append(1)
             self.rounds_won.set(self.rounds_won.get() + 1)
         else:
             result_text = f"Oops! '{selected_answer}' is wrong"
-            result_bg = "#F8CECC"
+            result_fg = "#F8CECC"
             # change to total_score += 1
             self.all_scores_list.append(0)
 
-        self.results_label.config(text=result_text, bg=result_bg)
+        self.results_label.config(text=result_text, fg=result_fg)
 
         for item in self.lyric_button_ref:
             item.config(state=DISABLED)
@@ -284,10 +280,10 @@ class Play:
         if self.rounds_played.get() == self.rounds_wanted.get():
             self.heading_label.config(text="Game Over")
             success_rate = self.rounds_won.get() / self.rounds_played.get() * 100
-            self.target_label.config(text=f"Success Rate: {success_rate:.0f}%")
-            self.next_button.config(state=DISABLED, text="Game Over")
-            self.to_stats_button.config(bg="#7D28A4")
-            self.end_game_button.config(text="Play Again", bg="#F7EFFD")
+            self.lyric_label.config(text=f"Success Rate: {success_rate:.0f}%")
+            self.next_button.config(state=DISABLED, text="Next Round")
+            self.to_stats_button.config(bg="#CBA9DB")
+            self.end_game_button.config(text="Play Again", bg="#7D28A4")
         else:
             self.next_button.config(state=NORMAL)
 
@@ -358,11 +354,11 @@ class Stats:
         # math to populate stats dialogue
         rounds_played = len(user_scores)
 
+        with open("stats_list.txt", "a") as file:
+            file.write(f"\n{sum(user_scores)}")
+
         success_rate = rounds_won / rounds_played * 100
         total_score = sum(user_scores)
-
-        with open("stats_list.txt", "a") as file:
-            file.write(f"\n{total_score}")
 
         total_for_average = sum(past_scores)
         average_score = total_for_average / lines_for_average
@@ -429,10 +425,10 @@ class DisplayHints:
         self.help_hearing_label.grid(row=0)
 
         help_text = "To play the game, you must read the lyric on the screen and try to guess what the missing " \
-                    "lyric is from four options. To submit your answer, click the button corresponding to your" \
-                    "answer. If you are struggling to select the correct lyric, try thinking about which answers" \
-                    "works the best. Even if you don't know the answer, you can take a really good guess based" \
-                    "on words that rhyme, words that fit into the sentence best and overall what sounds like it" \
+                    "lyric is from four options. To submit your answer, click the button corresponding to your " \
+                    "answer. If you are struggling to select the correct lyric, try thinking about which answers " \
+                    "works the best. Even if you don't know the answer, you can take a really good guess based " \
+                    "on words that rhyme, words that fit into the sentence best and overall what sounds like it " \
                     "would flow the best in a song."
 
         self.help_text_label = Label(self.help_frame, text=help_text,
