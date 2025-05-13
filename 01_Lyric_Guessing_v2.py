@@ -87,7 +87,7 @@ class StartGame:
         self.entry_area_frame.grid(row=3)
 
         self.num_rounds_entry = Entry(self.entry_area_frame, font=("Arial", "20", "bold"),
-                                      width=10,)
+                                      width=10)
         self.num_rounds_entry.grid(row=0, column=0, padx=10, pady=10)
 
         # create play button
@@ -120,6 +120,7 @@ class StartGame:
                 Play(rounds_wanted)
                 # Hide root window (ie: hide rounds choice window)
                 root.withdraw()
+                self.start_frame.destroy()
 
             else:
                 has_errors = "yes"
@@ -292,6 +293,7 @@ class Play:
         # game / allow new game to start
         root.deiconify()
         self.play_box.destroy()
+        StartGame()
 
     def to_hints(self):
         """
@@ -363,6 +365,8 @@ class Stats:
         total_for_average = sum(past_scores)
         average_score = total_for_average / lines_for_average
 
+        high_score = max(past_scores)
+
         # strings for start labels
 
         success_string = (f"Success Rate: {rounds_won} / {rounds_played}"
@@ -370,6 +374,8 @@ class Stats:
         total_score_string = f"Total Score: {total_score}"
 
         average_score_string = f"Average Score: {average_score:.0f}\n"
+
+        high_score_string = f"Overall High Score: {high_score}\n"
 
         heading_font = ("Arial", "16", "bold")
         normal_font = ("Arial", "14")
@@ -380,7 +386,8 @@ class Stats:
             [success_string, normal_font, "W"],
             [total_score_string, normal_font, "W"],
             ["\nAll Stats", heading_font, ""],
-            [average_score_string, normal_font, "W"]
+            [average_score_string, normal_font, "W"],
+            [high_score_string, normal_font, "W"]
         ]
 
         stats_label_ref_list = []
