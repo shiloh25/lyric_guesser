@@ -3,10 +3,8 @@ import random
 from tkinter import *
 from functools import partial
 
-# To prevent unwanted windows
 
-
-# helper functions go here
+# functions to get the songs and information go here
 def get_songs():
     # retrieve songs from csv file and put them in a list
     file = open("Song Lyric Spreadsheet - Sheet1.csv", "r")
@@ -41,7 +39,7 @@ def get_round_song():
 
 
 # classes start here
-
+# StartGame class which holds the starting/welcome window and number of rounds info
 class StartGame:
     """
     Initial Game interface (asks users how many rounds they would like to play)
@@ -108,12 +106,12 @@ class StartGame:
         self.num_rounds_entry.config(bg="#0C0C0C")
 
         error = "Oops - Please choose a whole number more than zero"
-        has_errors = "no"
 
         # checks that amount to be converted is a number above absolute zero
         try:
             rounds_wanted = int(rounds_wanted)
             if rounds_wanted > 0:
+                has_errors = "no"
                 # invoke Play class (and take across number of rounds)
                 self.num_rounds_entry.delete(0, END)
                 self.choose_label.config(text="How many rounds do you want to play?")
@@ -122,19 +120,24 @@ class StartGame:
                 root.withdraw()
                 self.start_frame.destroy()
 
+            elif rounds_wanted <= 0:
+                has_errors = "yes"
+
             else:
                 has_errors = "yes"
 
         except ValueError:
             has_errors = "yes"
 
-        # display the error if necessary
+        if has_errors == "yes":
+            # display the error if necessary
             if has_errors == "yes":
-                self.choose_label.config(text=error, fg="#990099", font=("Arial", "10", "bold"))
+                self.choose_label.config(text=error, fg="#F8CECC", font=("Arial", "10", "bold"))
                 self.num_rounds_entry.config(bg="#F4CCCC")
                 self.num_rounds_entry.delete(0, END)
 
 
+# Play class which holds the game itself
 class Play:
     """
     Interface for playing the Lyric Guessing Game
@@ -300,7 +303,7 @@ class Play:
         displays hints for playing game
         :return:
         """
-        DisplayHints(self)
+        Hints(self)
 
     def to_stats(self):
         """
@@ -314,6 +317,7 @@ class Play:
         Stats(self, stats_bundle)
 
 
+# Stats class which calculates and displays the users stats information
 class Stats:
 
     """
@@ -321,18 +325,6 @@ class Stats:
     """
 
     def __init__(self, partner, all_stats_info):
-
-        with open("stats_list.txt", "r") as file:
-            past_scores = [int(line.strip()) for line in file.readlines() if line.strip() != '']
-
-        with open('stats_list.txt', 'r') as file:
-            contents = file.read()
-            line_count = contents.count('\n')
-
-        if line_count > 0:
-            lines_for_average = line_count
-        else:
-            lines_for_average = 1
 
         # extract information from the master list
         rounds_won = all_stats_info[0]
@@ -357,12 +349,25 @@ class Stats:
         rounds_played = len(user_scores)
 
         with open("stats_list.txt", "a") as file:
-            file.write(f"\n{sum(user_scores)}")
+            file.write(f"{sum(user_scores)}\n")
+
+        with open("stats_list.txt", "r") as file:
+            past_scores = [int(line.strip()) for line in file.readlines() if line.strip() != '']
+
+        with open('stats_list.txt', 'r') as file:
+            contents = file.read()
+            line_count = contents.count('\n')
+
+        if line_count > 0:
+            lines_for_average = line_count
+        else:
+            lines_for_average = 1
 
         success_rate = rounds_won / rounds_played * 100
         total_score = sum(user_scores)
 
         total_for_average = sum(past_scores)
+        print(total_for_average)
         average_score = total_for_average / lines_for_average
 
         high_score = max(past_scores)
@@ -407,7 +412,8 @@ class Stats:
         self.stats_box.destroy()
 
 
-class DisplayHints:
+# Hints class which displays a hint message to the user
+class Hints:
 
     """
     Temperature conversion tool
@@ -427,7 +433,7 @@ class DisplayHints:
         self.help_frame = Frame(self.help_box, width=300, height=200)
         self.help_frame.grid()
 
-        self.help_hearing_label = Label(self.help_frame, text="Help / Info",
+        self.help_hearing_label = Label(self.help_frame, text="Hints",
                                         font=("Arial", "14", "bold"))
         self.help_hearing_label.grid(row=0)
 

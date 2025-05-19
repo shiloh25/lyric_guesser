@@ -1,6 +1,7 @@
 import csv
 import random
 
+
 def get_songs():
     # retrieve songs from csv file and put them in a list
     file = open("Song Lyric Spreadsheet - Sheet1.csv", "r")
@@ -11,6 +12,7 @@ def get_songs():
     all_songs.pop(0)
 
     return all_songs
+
 
 all_song_list = get_songs()
 random_song = random.choice(all_song_list)
@@ -27,8 +29,4 @@ random.shuffle(answer_list)
 
 print(song)
 print(lyric)
-print(correct_answer)
-print(wrong_answer_1)
-print(wrong_answer_2)
-print(wrong_answer_3)
 print(answer_list)
