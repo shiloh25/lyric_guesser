@@ -107,12 +107,12 @@ class StartGame:
         self.choose_label.config(fg="#009900", font=("Arial", "12", "bold"))
         self.num_rounds_entry.config(bg="#0C0C0C")
 
-        error = "Oops - Please choose a whole number more than zero"
+        error = "Please choose a whole number more than zero and less than 100"
 
         # checks that amount to be converted is a number above absolute zero
         try:
             rounds_wanted = int(rounds_wanted)
-            if rounds_wanted > 0:
+            if 0 < rounds_wanted <= 100:
                 has_errors = "no"
                 # invoke Play class (and take across number of rounds)
                 self.num_rounds_entry.delete(0, END)
@@ -123,6 +123,9 @@ class StartGame:
                 self.start_frame.destroy()
 
             elif rounds_wanted <= 0:
+                has_errors = "yes"
+
+            elif rounds_wanted > 100:
                 has_errors = "yes"
 
             else:
@@ -252,7 +255,7 @@ class Play:
         self.heading_label.config(text=f"Round {rounds_played} of {rounds_wanted}")
         self.song_title_label.config(text=f"{song}", fg="#F7EFFD")
         self.lyric_label.config(text=lyric)
-        self.results_label.config(text="=" * 7, bg="#0C0C0C")
+        self.results_label.config(text="=" * 7, bg="#0C0C0C", fg="#F7EFFD")
 
         # Assign answers to the buttons
         for i in range(4):
@@ -326,18 +329,6 @@ class Stats:
 
     def __init__(self, partner, all_stats_info):
 
-        with open("stats_list.txt", "r") as file:
-            past_scores = [int(line.strip()) for line in file.readlines() if line.strip() != '']
-
-        with open('stats_list.txt', 'r') as file:
-            contents = file.read()
-            line_count = contents.count('\n')
-
-        if line_count > 0:
-            lines_for_average = line_count
-        else:
-            lines_for_average = 1
-
         # extract information from the master list
         rounds_won = all_stats_info[0]
         user_scores = all_stats_info[1]
@@ -365,6 +356,18 @@ class Stats:
 
         success_rate = rounds_won / rounds_played * 100
         total_score = sum(user_scores)
+
+        with open("stats_list.txt", "r") as file:
+            past_scores = [int(line.strip()) for line in file.readlines() if line.strip() != '']
+
+        with open('stats_list.txt', 'r') as file:
+            contents = file.read()
+            line_count = contents.count('\n')
+
+        if line_count > 0:
+            lines_for_average = line_count
+        else:
+            lines_for_average = 1
 
         total_for_average = sum(past_scores)
         average_score = total_for_average / lines_for_average
@@ -432,7 +435,7 @@ class DisplayHints:
         self.help_frame.grid()
 
         self.help_hearing_label = Label(self.help_frame, text="Hints",
-                                        font=("Arial", "14", "bold"))
+                                        font=("Arial", "18", "bold"))
         self.help_hearing_label.grid(row=0)
 
         help_text = "To play the game, you must read the lyric on the screen and try to guess what the missing " \
@@ -443,7 +446,7 @@ class DisplayHints:
                     "would flow the best in a song."
 
         self.help_text_label = Label(self.help_frame, text=help_text,
-                                     wraplength=350, justify="left")
+                                     wraplength=350, justify="left", font=("Arial", "12"))
         self.help_text_label.grid(row=1, padx=10)
 
         self.dismiss_button = Button(self.help_frame, font=("Arial", "12", "bold"),
