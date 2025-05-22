@@ -3,8 +3,6 @@ import random
 from tkinter import *
 from functools import partial
 
-# To prevent unwanted windows
-
 
 # helper functions go here
 def get_songs():
@@ -332,9 +330,6 @@ class Stats:
         # extract information from the master list
         rounds_won = all_stats_info[0]
         user_scores = all_stats_info[1]
-
-        # sort user score to find high score...
-        user_scores.sort()
 
         # setup dialogue box
         self.stats_box = Toplevel()

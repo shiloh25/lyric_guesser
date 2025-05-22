@@ -360,7 +360,7 @@ class Stats:
         # math to populate stats dialogue
         rounds_played = len(user_scores)
 
-        with open("stats_list.txt", "a") as file:
+        with open("stats_list.txt", "w") as file:
             file.write(f"\n{sum(user_scores)}")
 
         success_rate = rounds_won / rounds_played * 100

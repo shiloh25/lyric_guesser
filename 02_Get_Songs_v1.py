@@ -12,7 +12,3 @@ all_songs.pop(0)
 random_song = random.choice(all_songs)
 
 print(random_song)
-
-
-
-
