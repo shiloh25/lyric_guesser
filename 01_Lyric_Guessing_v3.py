@@ -8,7 +8,9 @@ from functools import partial
 def get_songs():
     # retrieve songs from csv file and put them in a list
     file = open("Song Lyric Spreadsheet - Sheet1.csv", "r")
+    # format list appropriately
     all_songs = list(csv.reader(file, delimiter=","))
+    # close the file
     file.close()
 
     # remove the first row
@@ -19,12 +21,15 @@ def get_songs():
 
 def get_round_song():
     """
-    Get a random song from the list
-    :return: song list, song for the round
+    Get information about the song randomly chosen
+    :return: song, lyric, correct answer and list of all answers
     """
+    # call get_songs() function
     all_song_list = get_songs()
+    # randomly choose a song from the list
     random_song = random.choice(all_song_list)
 
+    # get needed information including song name, lyric, correct answer and all incorrect answers
     song = random_song[0]
     lyric = random_song[1]
     correct_answer = random_song[2]
@@ -32,7 +37,9 @@ def get_round_song():
     wrong_answer_2 = random_song[4]
     wrong_answer_3 = random_song[5]
 
+    # put all possible answers into a list to use later when making the buttons
     answer_list = [correct_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3]
+    # shuffle the order of the list randomly so the correct answer is not on the same button each time
     random.shuffle(answer_list)
 
     return song, lyric, correct_answer, answer_list
@@ -40,6 +47,7 @@ def get_round_song():
 
 # classes start here
 
+# class for the welcome and get rounds area
 class StartGame:
     """
     Initial Game interface (asks users how many rounds they would like to play)
@@ -49,18 +57,19 @@ class StartGame:
         """
         Gets number of rounds from user
         """
-
+        # set up the starting window
         self.start_frame = Frame(padx=10, pady=10, bg="#0C0C0C")
         self.start_frame.grid()
 
         # strings for labels
+        # introduction string
         intro_string = ("Welcome to Lyric Guessing! In each round you will be given a song lyric "
                         "and you need to select the missing lyric. Good Luck!")
 
-        # choose string = "Oops - Please choose a whole number more than zero."
-        choose_string = "How many rounds do you want to play"
+        # choose string requesting how many rounds the user wants
+        choose_string = "How many rounds do you want to play?"
 
-        # List of labels to be made (text | font | fg)
+        # list of labels to be made (text | font | fg)
         start_labels_list = [
             ["Lyric Guessing", ("Arial", "16", "bold"), "#F7EFFB"],
             [intro_string, ("Arial", "12", "bold"), "#F7EFFB"],
@@ -68,7 +77,6 @@ class StartGame:
         ]
 
         # create labels and add them to the reference list...
-
         start_label_ref = []
         for count, item in enumerate(start_labels_list):
             make_label = Label(self.start_frame, text=item[0], font=item[1], fg=item[2],
@@ -84,6 +92,7 @@ class StartGame:
         self.entry_area_frame = Frame(self.start_frame, bg="#0C0C0C")
         self.entry_area_frame.grid(row=3)
 
+        # input space for the number of rounds
         self.num_rounds_entry = Entry(self.entry_area_frame, font=("Arial", "20", "bold"),
                                       width=10)
         self.num_rounds_entry.grid(row=0, column=0, padx=10, pady=10)
@@ -96,20 +105,23 @@ class StartGame:
 
     def check_rounds(self):
         """
-        Checks users have entered 1 or more rounds
+        Checks users have entered 1 - 100 rounds
         """
-
+        # get rounds the user has requested from the input box
         rounds_wanted = self.num_rounds_entry.get()
 
         # Reset label and entry box (for when users come back to the home screen)
         self.choose_label.config(fg="#009900", font=("Arial", "12", "bold"))
         self.num_rounds_entry.config(bg="#0C0C0C")
 
+        # error message in case of invalid input
         error = "Please choose a whole number more than zero and less than 100"
 
-        # checks that amount to be converted is a number above absolute zero
+        # checks that amount to be played is greater than zero and less than 100
         try:
+            # make string input into int value
             rounds_wanted = int(rounds_wanted)
+            # check if rounds wanted is greater than 0 and less than 100
             if 0 < rounds_wanted <= 100:
                 has_errors = "no"
                 # invoke Play class (and take across number of rounds)
@@ -120,18 +132,13 @@ class StartGame:
                 root.withdraw()
                 self.start_frame.destroy()
 
-            elif rounds_wanted <= 0:
-                has_errors = "yes"
-
-            elif rounds_wanted > 100:
-                has_errors = "yes"
-
             else:
                 has_errors = "yes"
 
         except ValueError:
             has_errors = "yes"
 
+        # loop to play when has_errors = yes because the users input is invalid
         if has_errors == "yes":
             # display the error if necessary
             if has_errors == "yes":
@@ -140,6 +147,7 @@ class StartGame:
                 self.num_rounds_entry.delete(0, END)
 
 
+# class for playing the game
 class Play:
     """
     Interface for playing the Lyric Guessing Game
@@ -147,21 +155,22 @@ class Play:
 
     def __init__(self, how_many):
 
+        # set rounds played to 0 to start with
         self.rounds_played = IntVar()
         self.rounds_played.set(0)
 
+        # set rounds wanted to the number of rounds the user inputted
         self.rounds_wanted = IntVar()
         self.rounds_wanted.set(how_many)
 
         self.rounds_won = IntVar()
 
-        # song lists and score list
-        self.round_song_list = []
+        # score list
         self.all_scores_list = []
-        self.all_high_score_list = []
 
         self.play_box = Toplevel()
 
+        # set up game frame
         self.game_frame = Frame(self.play_box, bg="#0C0C0C")
         self.game_frame.grid(pady=10, padx=10)
 
@@ -176,6 +185,7 @@ class Play:
             ["", body_font, "#0C0C0C", 4]
         ]
 
+        # formatting the labels
         play_labels_ref = []
         for item in play_labels_list:
             self.make_label = Label(self.game_frame, text=item[0], font=item[1], bg=item[2],
@@ -305,7 +315,7 @@ class Play:
         displays hints for playing game
         :return:
         """
-        DisplayHints(self)
+        Hints(self)
 
     def to_stats(self):
         """
@@ -314,11 +324,12 @@ class Play:
         # important: retrieve number of rounds
         # won as a number (rather than the self container)
         rounds_won = self.rounds_won.get()
-        stats_bundle = [rounds_won, self.all_scores_list, self.all_high_score_list]
+        stats_bundle = [rounds_won, self.all_scores_list]
 
         Stats(self, stats_bundle)
 
 
+# class for the stats component
 class Stats:
 
     """
@@ -409,7 +420,8 @@ class Stats:
         self.stats_box.destroy()
 
 
-class DisplayHints:
+# class for the hints component
+class Hints:
 
     """
     Temperature conversion tool
