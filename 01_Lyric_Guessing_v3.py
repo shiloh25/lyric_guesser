@@ -174,6 +174,9 @@ class Play:
         self.game_frame = Frame(self.play_box, bg="#0C0C0C")
         self.game_frame.grid(pady=10, padx=10)
 
+        # declare correct answer text variable inside __init__ to avoid errors
+        self.correct_answer_text = None
+
         # body font for most labels
         body_font = ("Arial", "12")
 
@@ -200,7 +203,7 @@ class Play:
         self.lyric_label = play_labels_ref[2]
         self.results_label = play_labels_ref[3]
 
-        # set up lyric buttons...
+        # set up lyric buttons
         self.lyric_frame = Frame(self.game_frame, bg="#0C0C0C")
         self.lyric_frame.grid(row=3)
 
@@ -242,15 +245,18 @@ class Play:
         self.to_stats_button = control_ref_list[2]
         self.end_game_button = control_ref_list[3]
 
+        # disable stats button for the start of the game
         self.to_stats_button.config(state=DISABLED)
 
         # once interface has been created, invoke new round function for first round
         self.new_round()
 
+    # new round function
     def new_round(self):
         """
         Starts a new round with a fresh question and answers.
         """
+        # count how many rounds have been played
         rounds_played = self.rounds_played.get() + 1
         self.rounds_played.set(rounds_played)
         rounds_wanted = self.rounds_wanted.get()
@@ -259,7 +265,7 @@ class Play:
         song, lyric, correct_answer, answer_options = get_round_song()
         self.correct_answer_text = correct_answer
 
-        # Update UI text
+        # Update GUI text
         self.heading_label.config(text=f"Round {rounds_played} of {rounds_wanted}")
         self.song_title_label.config(text=f"{song}", fg="#F7EFFD")
         self.lyric_label.config(text=lyric)
@@ -271,36 +277,49 @@ class Play:
 
         self.next_button.config(state=DISABLED)
 
+    # round results function
     def round_results(self, user_choice):
 
+        # enable stats button
         self.to_stats_button.config(state=NORMAL)
+        # get user the button that the user selects
         selected_answer = self.lyric_button_ref[user_choice].cget('text')
 
+        # check if answer is correct
         if selected_answer == self.correct_answer_text:
+            # set message for the correct answer
             result_text = f"Success! '{selected_answer}' is correct"
             result_fg = "#82B366"
             # change to total_score += 1
             self.all_scores_list.append(1)
             self.rounds_won.set(self.rounds_won.get() + 1)
         else:
+            # set message for incorrect answer
             result_text = f"Oops! '{selected_answer}' is wrong"
             result_fg = "#F8CECC"
             # change to total_score is nothing
             self.all_scores_list.append(0)
 
+        # show result message to the user
         self.results_label.config(text=result_text, fg=result_fg)
 
+        # disable lyric buttons when an item has been selected
         for item in self.lyric_button_ref:
             item.config(state=DISABLED)
 
+        # if all the rounds have been played
         if self.rounds_played.get() == self.rounds_wanted.get():
+            # present game over message
             self.heading_label.config(text="Game Over")
+            # calculate success percentage rate to display
             success_rate = self.rounds_won.get() / self.rounds_played.get() * 100
             self.lyric_label.config(text=f"Success Rate: {success_rate:.0f}%")
+            # disable next round button
             self.next_button.config(state=DISABLED, text="Next Round")
             self.to_stats_button.config(bg="#CBA9DB")
             self.end_game_button.config(text="Play Again", bg="#7D28A4")
         else:
+            # otherwise enable the next button
             self.next_button.config(state=NORMAL)
 
     def close_play(self):
@@ -308,6 +327,7 @@ class Play:
         # game / allow new game to start
         root.deiconify()
         self.play_box.destroy()
+        # call start game class
         StartGame()
 
     def to_hints(self):
@@ -315,17 +335,19 @@ class Play:
         displays hints for playing game
         :return:
         """
+        # call hints component
         Hints(self)
 
     def to_stats(self):
         """
         displays hints for playing game
         """
-        # important: retrieve number of rounds
+        # retrieve number of rounds
         # won as a number (rather than the self container)
         rounds_won = self.rounds_won.get()
         stats_bundle = [rounds_won, self.all_scores_list]
 
+        # call stats component
         Stats(self, stats_bundle)
 
 
@@ -333,7 +355,7 @@ class Play:
 class Stats:
 
     """
-    Temperature conversion tool
+    Stats calculations and component
     """
 
     def __init__(self, partner, all_stats_info):
@@ -357,31 +379,39 @@ class Stats:
         # math to populate stats dialogue
         rounds_played = len(user_scores)
 
+        # write the users score to the stats file
         with open("stats_list.txt", "a") as file:
             file.write(f"\n{sum(user_scores)}")
 
+        # calculate success percentage rate
         success_rate = rounds_won / rounds_played * 100
+        # calculate total score by adding all the user scores
         total_score = sum(user_scores)
 
+        # read the stats file and store the past scores
         with open("stats_list.txt", "r") as file:
             past_scores = [int(line.strip()) for line in file.readlines() if line.strip() != '']
 
+        # count the lines in the file to use for average
         with open('stats_list.txt', 'r') as file:
             contents = file.read()
             line_count = contents.count('\n')
 
+        # set the lines to use for the average (to prevent dividing by 0 if the file is empty)
         if line_count > 0:
             lines_for_average = line_count
         else:
             lines_for_average = 1
 
+        # calculate the total of all the past scores for the average
         total_for_average = sum(past_scores)
+        # calculate average
         average_score = total_for_average / lines_for_average
 
+        # calculate high score from all the past scores
         high_score = max(past_scores)
 
         # strings for start labels
-
         success_string = (f"Success Rate: {rounds_won} / {rounds_played}"
                           f"({success_rate:.0f}%)")
         total_score_string = f"Total Score: {total_score}"
@@ -390,6 +420,7 @@ class Stats:
 
         high_score_string = f"Overall High Score: {high_score}\n"
 
+        # fonts and sizing for headings and text
         heading_font = ("Arial", "16", "bold")
         normal_font = ("Arial", "14")
 
@@ -403,6 +434,7 @@ class Stats:
             [high_score_string, normal_font, "W"]
         ]
 
+        # formatting for the stats window
         stats_label_ref_list = []
         for count, item in enumerate(all_stats_strings):
             self.stats_label = Label(self. stats_frame, text=item[0], font=item[1],
@@ -415,6 +447,7 @@ class Stats:
                                      command=partial(self.close_stats, partner))
         self.dismiss_button.grid(row=8, padx=10, pady=10)
 
+    # close the stats window
     def close_stats(self, partner):
         partner.to_stats_button.config(state=NORMAL)
         self.stats_box.destroy()
@@ -424,7 +457,7 @@ class Stats:
 class Hints:
 
     """
-    Temperature conversion tool
+    Hints component
     """
     def __init__(self, partner):
 
@@ -438,6 +471,7 @@ class Hints:
         # if user press cross at top, close help and 'releases' help button
         self.help_box.protocol('WM_DELETE_WINDOW', partial(self.close_help, partner))
 
+        # formatting for the help frame
         self.help_frame = Frame(self.help_box, width=300, height=200)
         self.help_frame.grid()
 
@@ -445,6 +479,7 @@ class Hints:
                                         font=("Arial", "18", "bold"))
         self.help_hearing_label.grid(row=0)
 
+        # help message
         help_text = "To play the game, you must read the lyric on the screen and try to guess what the missing " \
                     "lyric is from four options. To submit your answer, click the button corresponding to your " \
                     "answer. If you are struggling to select the correct lyric, try thinking about which answers " \
@@ -467,6 +502,7 @@ class Hints:
         for item in recolour_list:
             item.config(bg=background)
 
+    # close the help window
     def close_help(self, partner):
         partner.to_help_button.config(state=NORMAL)
         self.help_box.destroy()
