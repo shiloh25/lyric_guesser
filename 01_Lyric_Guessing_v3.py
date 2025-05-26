@@ -275,6 +275,7 @@ class Play:
         for i in range(4):
             self.lyric_button_ref[i].config(text=answer_options[i], state=NORMAL)
 
+        # disable the next button
         self.next_button.config(state=DISABLED)
 
     # round results function
